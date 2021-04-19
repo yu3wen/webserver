@@ -29,9 +29,12 @@ function setredis(num) {
 
 router.get('/start', async (ctx) => {
 	R = Math.floor(100 * Math.random())
-	const check = await setredis(R)
-	if (check) ctx.body = 'OK'
-	else ctx.body = 'err'
+	try {
+		await setredis(R)
+		ctx.body = 'OK'
+	} catch (err) {
+		ctx.body = 'err'
+	}
 })
 
 router.get('/:number', async (ctx) => {
@@ -42,8 +45,9 @@ router.get('/:number', async (ctx) => {
 	} else if (number === R) {
 		ctx.body = 'euqal'
 		R = Math.floor(100 * Math.random())
-		const check = await setredis(R)
-		if (!check) {
+		try {
+			await setredis(R)
+		} catch (err) {
 			ctx.body = 'err'
 		}
 	} else if (number < R) {
