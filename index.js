@@ -17,12 +17,27 @@ function getredis() {
 	})
 }
 
+function setredis(num){
+	return new Promise((resolve)=>{
+		resolve(client.set('Rnum',num))
+	})
+}
+
 router.get('/start', async (ctx) => {
 	R = Math.floor(100 * Math.random())
-	client.set('Rnum', R, (...args) => {
-		console.log(args)
-	})
-	ctx.body = 'OK'
+	/*client.set('Rnum', R, (err,res)=>{
+		if(err){
+			return console.error('Error:',err)
+		}
+		ctx.body='OK'
+		return console.log('res',res)
+	})*/
+	let check=await setredis(R)
+	if(check){
+		ctx.body='OK'
+		console.log(check)
+	}
+	//ctx.body = 'OK'
 })
 
 router.get('/:number', async (ctx) => {
@@ -33,9 +48,10 @@ router.get('/:number', async (ctx) => {
 	} else if (number === R) {
 		ctx.body = 'euqal'
 		R = Math.floor(100 * Math.random())
-		client.set('Rnum', R, (...args) => {
-			console.log(args)
-		})
+		let check=await setredis(R)
+		if(!check){
+			ctx.body='error'
+		}
 	} else if (number < R) {
 		ctx.body = 'bigger'
 	}
