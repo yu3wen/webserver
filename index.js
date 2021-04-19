@@ -25,19 +25,12 @@ function setredis(num) {
 
 router.get('/start', async (ctx) => {
 	R = Math.floor(100 * Math.random())
-	/* client.set('Rnum', R, (err,res)=>{
-		if(err){
-			return console.error('Error:',err)
-		}
-		ctx.body='OK'
-		return console.log('res',res)
-	}) */
+
 	const check = await setredis(R)
 	if (check) {
 		ctx.body = 'OK'
 		console.log(check)
 	}
-	// ctx.body = 'OK'
 })
 
 router.get('/:number', async (ctx) => {
