@@ -10,29 +10,28 @@ app.listen(3000)
 const router = new Router()
 
 function getredis() {
-	return new Promise((resolve) => {
+	return new Promise((resolve, reject) => {
 		client.get('Rnum', (err, res) => {
-			resolve(Number(res))
+			if (res) resolve(Number(res))
+			else if (err) reject(err)
 		})
 	})
 }
 
 function setredis(num) {
-	return new Promise((resolve) => {
+	return new Promise((resolve, reject) => {
 		client.set('Rnum', num, (err, res) => {
-			resolve(res)
+			if (res) resolve(res)
+			else if (err) reject(err)
 		})
 	})
 }
 
 router.get('/start', async (ctx) => {
 	R = Math.floor(100 * Math.random())
-
 	const check = await setredis(R)
-	if (check) {
-		ctx.body = 'OK'
-		console.log(check)
-	}
+	if (check) ctx.body = 'OK'
+	else ctx.body = 'err'
 })
 
 router.get('/:number', async (ctx) => {
@@ -45,7 +44,7 @@ router.get('/:number', async (ctx) => {
 		R = Math.floor(100 * Math.random())
 		const check = await setredis(R)
 		if (!check) {
-			ctx.body = 'error'
+			ctx.body = 'err'
 		}
 	} else if (number < R) {
 		ctx.body = 'bigger'
