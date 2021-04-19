@@ -19,7 +19,10 @@ function getredis() {
 
 function setredis(num) {
 	return new Promise((resolve) => {
-		resolve(client.set('Rnum', num))
+		client.set('Rnum', num, (err, res) => {
+			resolve(res)
+			console.log('setredis:', res)
+		})
 	})
 }
 
