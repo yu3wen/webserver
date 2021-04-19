@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>guessnumber</title>
+	<script type="text/javascript" src="../index.js"></script>
+</head>
+
+<body>
+	<p>Number Guesser</p>
+	<form action="http://localhost:3000/number" method="POST">
+		<input name="num" /><br />
+		<input type="submit" value="submit" />
+	</form>
+	<form action="http://localhost:3000/start" method="POST">
+		<input type="submit" value="REstart" />
+	</form>
+	<h1>
+		<%= message%>
+	</h1>
+</body>

@@ -16,8 +16,14 @@
 		"eslint-plugin-import": "^2.22.1"
 	},
 	"dependencies": {
+		"ejs": "^3.1.6",
 		"koa": "^2.13.1",
+		"koa-bodyparser": "^4.3.0",
+		"koa-html-render": "^1.0.3",
 		"koa-router": "^10.0.0",
+		"koa-static": "^5.0.0",
+		"koa-views": "^7.0.1",
+		"path": "^0.12.7",
 		"redis": "^3.1.1"
 	}
 }
