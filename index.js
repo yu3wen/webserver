@@ -21,7 +21,6 @@ function setredis(num) {
 	return new Promise((resolve) => {
 		client.set('Rnum', num, (err, res) => {
 			resolve(res)
-			console.log('setredis:', res)
 		})
 	})
 }
