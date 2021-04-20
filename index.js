@@ -58,11 +58,10 @@ router.post('/start', async (ctx) => {
 
 router.post('/number', async (ctx) => {
 	const value = ctx.request.body.num || ''
-	console('value:', value)
 	try {
 		R = await getredis()
 		if (Number(value) > R) {
-			message = 'small'
+			message = 'big'
 			await ctx.render('index', {
 				message,
 			})
@@ -74,7 +73,7 @@ router.post('/number', async (ctx) => {
 			R = Math.floor(100 * Math.random())
 			await setredis(R)
 		} else if (Number(value) < R) {
-			message = 'big'
+			message = 'small'
 			await ctx.render('index', {
 				message,
 			})
@@ -82,9 +81,8 @@ router.post('/number', async (ctx) => {
 	} catch (err) {
 		console.log(err)
 	}
-	console.log(R)
 })
-
+module.exports = { getredis }
 app.use(router.routes())
 
 console.log('running')
