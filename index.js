@@ -44,13 +44,15 @@ router.get('/', async (ctx) => {
 })
 
 router.post('/start', async (ctx) => {
-	message = 'OK'
-	R = Math.floor(100 * Math.random())
+	// message = 'OK'
+	R = Math.floor(1000000 * Math.random())
 	try {
 		await setredis(R)
-		await ctx.render('index', {
-			message,
-		})
+		ctx.body = 'OK'
+		// await ctx.render('index', {
+		// 	message,
+		// })
+		// ctx.message = message
 	} catch (err) {
 		console.error(err)
 	}
@@ -61,22 +63,13 @@ router.post('/number', async (ctx) => {
 	try {
 		R = await getredis()
 		if (Number(value) > R) {
-			message = 'big'
-			await ctx.render('index', {
-				message,
-			})
+			ctx.body = 'big'
 		} else if (Number(value) === R) {
-			message = 'equal'
-			await ctx.render('index', {
-				message,
-			})
+			ctx.body = 'equal'
 			R = Math.floor(100 * Math.random())
 			await setredis(R)
 		} else if (Number(value) < R) {
-			message = 'small'
-			await ctx.render('index', {
-				message,
-			})
+			ctx.body = 'small'
 		}
 	} catch (err) {
 		console.log(err)
