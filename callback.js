@@ -10,13 +10,16 @@ function conn(first, second, cb) {
 		},
 	}
 	re(options, (err, res, body) => {
-		if (err) cb(err)
+		if (err) {
+			cb(err, res)
+			return
+		}
 		if (body === 'big') {
 			conn(first, Math.floor((first + second) / 2) - 1, cb)
 		} else if (body === 'small') {
 			conn(Math.floor((first + second) / 2) + 1, second, cb)
 		} else if (body === 'equal') {
-			cb(number)
+			cb(err, number)
 		}
 	})
 }
