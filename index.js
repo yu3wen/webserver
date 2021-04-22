@@ -6,8 +6,6 @@ const path = require('path')
 const bodyParser = require('koa-bodyparser')
 
 const client = Redis.createClient(6379, 'localhost')
-let R
-let message
 const app = new Koa()
 app.listen(3000)
 const router = new Router()
@@ -27,6 +25,12 @@ function getredis() {
 	})
 }
 
+function sleep() {
+	return new Promise((resolve) => {
+		setTimeout(resolve, 1000)
+	})
+}
+
 function setredis(num) {
 	return new Promise((resolve, reject) => {
 		client.set('Rnum', num, (err, res) => {
@@ -36,23 +40,11 @@ function setredis(num) {
 	})
 }
 
-router.get('/', async (ctx) => {
-	message = ''
-	await ctx.render('index', {
-		message,
-	})
-})
-
 router.post('/start', async (ctx) => {
-	// message = 'OK'
-	R = Math.floor(1000000 * Math.random())
+	const R = Math.floor(1000000 * Math.random())
 	try {
 		await setredis(R)
 		ctx.body = 'OK'
-		// await ctx.render('index', {
-		// 	message,
-		// })
-		// ctx.message = message
 	} catch (err) {
 		console.error(err)
 	}
@@ -60,8 +52,10 @@ router.post('/start', async (ctx) => {
 
 router.post('/number', async (ctx) => {
 	const value = ctx.request.body.num || ''
+	// console.log('value:', value)
+	await sleep()
 	try {
-		R = await getredis()
+		let R = await getredis()
 		if (Number(value) > R) {
 			ctx.body = 'big'
 		} else if (Number(value) === R) {
@@ -75,6 +69,7 @@ router.post('/number', async (ctx) => {
 		console.log(err)
 	}
 })
+
 module.exports = { getredis }
 app.use(router.routes())
 
