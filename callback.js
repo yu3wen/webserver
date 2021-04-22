@@ -11,7 +11,7 @@ function conn(first, second, cb) {
 	}
 	re(options, (err, res, body) => {
 		if (err) {
-			cb(err, res)
+			cb(err)
 			return
 		}
 		if (body === 'big') {
@@ -19,7 +19,7 @@ function conn(first, second, cb) {
 		} else if (body === 'small') {
 			conn(Math.floor((first + second) / 2) + 1, second, cb)
 		} else if (body === 'equal') {
-			cb(err, number)
+			cb(null, number)
 		}
 	})
 }
