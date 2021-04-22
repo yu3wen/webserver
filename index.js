@@ -25,11 +25,11 @@ function getredis() {
 	})
 }
 
-function sleep() {
-	return new Promise((resolve) => {
-		setTimeout(resolve, 6000)
-	})
-}
+// function sleep() {
+// 	return new Promise((resolve) => {
+// 		setTimeout(resolve, 6000)
+// 	})
+// }
 
 function setredis(num) {
 	return new Promise((resolve, reject) => {
@@ -53,7 +53,7 @@ router.post('/start', async (ctx) => {
 router.post('/number', async (ctx) => {
 	const value = ctx.request.body.num || ''
 	// console.log('value:', value)
-	await sleep()
+	// await sleep()
 	try {
 		let R = await getredis()
 		if (Number(value) > R) {

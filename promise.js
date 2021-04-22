@@ -1,6 +1,6 @@
 const re = require('request')
 
-function conn(first, second, resolve, reject) {
+function conn(first, second, cb) {
 	const number = Math.floor((first + second) / 2)
 	const options = {
 		url: 'http://localhost:3000/number',
@@ -10,25 +10,29 @@ function conn(first, second, resolve, reject) {
 		},
 	}
 	re(options, (err, res, body) => {
-		if (err) { reject(err) }
+		if (err) cb(err)
 		if (body === 'big') {
-			conn(first, Math.floor((first + second) / 2) - 1, resolve, reject)
+			conn(first, Math.floor((first + second) / 2) - 1, cb)
 		} else if (body === 'small') {
-			conn(Math.floor((first + second) / 2) + 1, second, resolve, reject)
+			conn(Math.floor((first + second) / 2) + 1, second, cb)
 		} else if (body === 'equal') {
-			resolve(number)
+			cb(number)
 		}
 	})
 }
 
-const promise = new Promise((resolve, reject) => {
-	conn(0, 1000000, resolve, reject)
-})
-
-try {
-	promise.then((res) => {
-		console.log('num:', res)
+function pro() {
+	return new Promise((resolve, reject) => {
+		conn(0, 1000000, (err, res) => {
+			if (err) reject(err)
+			resolve(res)
+		})
 	})
-} catch (err) {
-	console.log(err)
 }
+
+pro().then((res) => {
+	console('num:', res)
+})
+	.catch((err) => {
+		console.log('err:', err)
+	})
