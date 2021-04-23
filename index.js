@@ -52,8 +52,6 @@ router.post('/start', async (ctx) => {
 
 router.post('/number', async (ctx) => {
 	const value = ctx.request.body.num || ''
-	// console.log('value:', value)
-	// await sleep()
 	try {
 		let R = await getredis()
 		if (Number(value) > R) {

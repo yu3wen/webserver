@@ -1,6 +1,7 @@
 const rp = require('request-promise')
 
-function conn(parma) {
+function conn(first, second) {
+	const parma = Math.floor((first + second) / 2)
 	const options = {
 		url: 'http://localhost:3000/number',
 		method: 'post',
@@ -8,25 +9,18 @@ function conn(parma) {
 			num: parma,
 		},
 	}
-	return rp(options)
-}
-
-function pro(first, second) {
-	const parma = Math.floor((first + second) / 2)
-	conn(parma).then((res) => {
+	return rp(options).then((res) => {
 		if (res === 'big') {
-			pro(first, Math.floor((first + second) / 2) - 1)
-			return
+			return conn(first, Math.floor((first + second) / 2) - 1)
 		} if (res === 'small') {
-			pro(Math.floor((first + second) / 2) + 1, second)
-			return
+			return conn(Math.floor((first + second) / 2) + 1, second)
 		} if (res === 'equal') {
-			console.log('number:', parma)
+			return parma
 		}
+		return null
 	})
-		.catch((err) => {
-			console.log('err', err)
-		})
 }
 
-pro(0, 1000000)
+conn(0, 1000000).then((res) => {
+	console.log('res:', res)
+})
