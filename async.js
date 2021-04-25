@@ -1,6 +1,6 @@
 const rp = require('request-promise')
 
-function conn(first, second) {
+async function conn(first, second) {
 	const parma = Math.floor((first + second) / 2)
 	const options = {
 		url: 'http://localhost:3000/number',
@@ -9,24 +9,29 @@ function conn(first, second) {
 			num: parma,
 		},
 	}
-	return rp(options).then((res) => {
-		if (res === 'big') {
+	try {
+		const message = await rp(options)
+		if (message === 'big') {
 			return conn(first, Math.floor((first + second) / 2) - 1)
-		} if (res === 'small') {
+		}
+		if (message === 'small') {
 			return conn(Math.floor((first + second) / 2) + 1, second)
-		} if (res === 'equal') {
+		}
+		if (message === 'equal') {
 			return parma
 		}
-		return null
-	})
+	} catch (err) {
+		throw Error(err)
+	}
+	return null
 }
 
 async function asy() {
 	try {
-		const number = await conn(0, 1000000)
-		console.log('number:', number)
+		const message = await conn(0, 1000000)
+		console.log('number', message)
 	} catch (err) {
-		console.log(err)
+		console.log('Error', err)
 	}
 }
 
