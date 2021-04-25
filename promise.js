@@ -16,11 +16,13 @@ function conn(first, second) {
 			return conn(Math.floor((first + second) / 2) + 1, second)
 		} if (res === 'equal') {
 			return parma
+			// throw Error('Throw error')
 		}
 		return null
 	})
 }
-
 conn(0, 1000000).then((res) => {
-	console.log('res:', res)
+	console.log('number:', res)
+}).catch((err) => {
+	console.log('err:', err)
 })
