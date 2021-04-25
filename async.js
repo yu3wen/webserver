@@ -1,42 +1,33 @@
-const re = require('request')
+const rp = require('request-promise')
 
-function conn(first, second, cb) {
-	const number = Math.floor((first + second) / 2)
+function conn(first, second) {
+	const parma = Math.floor((first + second) / 2)
 	const options = {
 		url: 'http://localhost:3000/number',
 		method: 'post',
 		form: {
-			num: number,
+			num: parma,
 		},
 	}
-	re(options, (err, res, body) => {
-		if (err) cb(err)
-		if (body === 'big') {
-			conn(first, Math.floor((first + second) / 2) - 1, cb)
-		} else if (body === 'small') {
-			conn(Math.floor((first + second) / 2) + 1, second, cb)
-		} else if (body === 'equal') {
-			cb(number)
+	return rp(options).then((res) => {
+		if (res === 'big') {
+			return conn(first, Math.floor((first + second) / 2) - 1)
+		} if (res === 'small') {
+			return conn(Math.floor((first + second) / 2) + 1, second)
+		} if (res === 'equal') {
+			return parma
 		}
+		return null
 	})
 }
 
-function promise() {
-	return new Promise((resolve, reject) => {
-		conn(0, 1000000, (err, res) => {
-			if (err) reject(err)
-			resolve(res)
-		})
-	})
-}
-
-async function guess() {
+async function asy() {
 	try {
-		const num = await promise()
-		console.log('num:', num)
+		const number = await conn(0, 1000000)
+		console.log('number:', number)
 	} catch (err) {
 		console.log(err)
 	}
 }
 
-guess()
+asy()
