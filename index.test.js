@@ -1,80 +1,54 @@
 const request = require('supertest')
 const should = require('should')
-const rp = require('request-promise')
+const app = require('./index')
 
-async function deleteuser() {
-	const options = {
-		url: 'http://localhost:3000/deleteuser',
-		method: 'post',
-		form: {
-			name: 'new',
-		},
-	}
-	try {
-		await rp(options)
-		// console.log('delete status:', message)
-	} catch (err) {
-		console.log('err:', err)
-	}
-}
-
-describe('/register', () => {
+const agent = request.agent(app)
+describe('test', () => {
 	it('register', (done) => {
-		request('localhost:3000')
+		request(app)
 			.post('/register')
 			.send({ name: 'new', password: 'test' })
 			.expect(200, (err, res) => {
 				should.not.exist(err)
 				res.text.should.containEql('register sucess')
-				deleteuser()
 				done()
 			})
 	})
-})
-
-describe('/login', () => {
-	it('sucess', (done) => {
-		request('localhost:3000')
+	it('login sucess', (done) => {
+		agent
 			.post('/login')
-			.send({ name: 'test', password: 'test' })
+			.send({ name: 'new', password: 'test' })
 			.expect(200, (err, res) => {
 				should.not.exist(err)
 				res.text.should.containEql('Hello')
-				deleteuser()
 				done()
 			})
 	})
-	it('false', (done) => {
-		request('localhost:3000')
-			.post('/login')
-			.send({ name: 'test', password: 'test1' })
-			.expect(200, (err, res) => {
-				should.not.exist(err)
-				res.text.should.containEql('login failed')
-				deleteuser()
-				done()
-			})
-	})
-})
-
-describe('/start', () => {
-	it('success setRnum', (done) => {
-		request('localhost:3000')
+	it('start success', (done) => {
+		agent
 			.post('/start')
-			.expect(200, (err, res) => {
+			.expect(200, (err, response) => {
 				should.not.exist(err)
-				res.text.should.containEql('success setRnum')
-				deleteuser()
+				response.text.should.containEql('success start')
 				done()
 			})
 	})
-	it('please login', (done) => {
-		request('localhost:3000')
-			.post('/start')
+	it('guess success', (done) => {
+		agent
+			.post('/number')
+			.send({ num: 50 })
 			.expect(200, (err, res) => {
 				should.not.exist(err)
-				res.text.should.containEql('please login')
-				deleteuser()
+				res.text.should.equalOneOf(['big', 'small', 'equal'])
+				done()
+			})
+	})
+	it('delete all', (done) => {
+		agent
+			.post('/delete')
+			.expect(200, (err, res) => {
+				should.not.exist(err)
+				res.text.should.containEql('delete sucess')
 				done()
 			})
 	})
