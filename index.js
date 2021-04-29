@@ -68,10 +68,6 @@ function guess(userid) {
 	})
 }
 
-router.post('/yes', () => {
-	throw new Error('yes')
-})
-
 router.post('/register', async (ctx) => {
 	const uname = ctx.request.body.name
 	const upassword = ctx.request.body.password
