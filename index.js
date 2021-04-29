@@ -44,9 +44,13 @@ function register(uname, upassword) {
 }
 
 function login(uname) {
-	return new Promise((resolve) => {
-		const user = db.collection('user').findOne({ name: uname })
-		resolve(user)
+	return new Promise((resolve, reject) => {
+		db.collection('user').findOne({ name: uname }, (err, res) => {
+			if (err) {
+				reject(err)
+			}
+			resolve(res)
+		})
 	})
 }
 
@@ -62,9 +66,14 @@ function start(userid, number) {
 }
 
 function guess(userid) {
-	return new Promise((resolve) => {
-		const number = db.collection('number').findOne({ userid })
-		resolve(number)
+	return new Promise((resolve, reject) => {
+		db.collection('number').findOne({ userid }, (err, res) => {
+			if (err) {
+				reject(err)
+			}
+			resolve(res)
+		})
+		// resolve(number)
 	})
 }
 
