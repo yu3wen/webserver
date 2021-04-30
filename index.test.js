@@ -66,10 +66,11 @@ describe('number test', () => {
 	})
 	it('number', (done) => {
 		agent1
-			.post('/start')
+			.post('/number')
+			.send({ num: 50 })
 			.expect(200, (err, response) => {
 				should.not.exist(err)
-				response.text.should.containEql('success start')
+				response.text.should.equalOneOf(['big', 'small', 'equal'])
 				done()
 			})
 	})
