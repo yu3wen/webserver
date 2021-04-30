@@ -2,12 +2,12 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const session = require('koa-session')
 const bodyParser = require('koa-bodyparser')
-const { MongoClient } = require('mongodb')
 const crypto = require('crypto')
 const mongoose = require('mongoose')
-const Catcherr = require('./exception')
 
-const url = 'mongodb://localhost:27017'
+const Catcherr = require('./exception')
+const dbconnect = require('./mongodbconnect')
+
 const app = new Koa()
 app.use(Catcherr)
 app.use(session(app))
@@ -15,15 +15,10 @@ app.use(bodyParser())
 module.exports = app.listen(3000)
 const router = new Router()
 app.keys = ['somesecret']
-const dbname = 'mongo'
-const client = new MongoClient(url)
 
 let db
-client.connect((err) => {
-	if (err) {
-		throw new Error(err)
-	}
-	db = client.db(dbname)
+dbconnect.connect((res) => {
+	db = res
 })
 
 function md5(s) {
@@ -33,48 +28,19 @@ function md5(s) {
 function register(uname, upassword) {
 	const usalt = Math.floor(100 * Math.random())
 	const test = { name: uname, password: md5(uname + usalt + upassword), salt: usalt }
-	return new Promise((resolve, reject) => {
-		db.collection('user').insertOne(test, (error, res) => {
-			if (error) {
-				reject(error)
-			}
-			resolve(res)
-		})
-	})
+	return db.collection('user').insertOne(test)
 }
 
 function login(uname) {
-	return new Promise((resolve, reject) => {
-		db.collection('user').findOne({ name: uname }, (err, res) => {
-			if (err) {
-				reject(err)
-			}
-			resolve(res)
-		})
-	})
+	return db.collection('user').findOne({ name: uname })
 }
 
-function start(userid, number) {
-	return new Promise((resolve, reject) => {
-		db.collection('number').updateOne({ userid }, { $set: { number } }, { upsert: true }, (err, res) => {
-			if (err) {
-				reject(err)
-			}
-			resolve(res)
-		})
-	})
+function start(userid, num) {
+	return db.collection('number').updateOne({ userid }, { $set: { number: num } }, { upsert: true })
 }
 
-function guess(userid) {
-	return new Promise((resolve, reject) => {
-		db.collection('number').findOne({ userid }, (err, res) => {
-			if (err) {
-				reject(err)
-			}
-			resolve(res)
-		})
-		// resolve(number)
-	})
+function number(userid) {
+	return db.collection('number').findOne({ userid })
 }
 
 router.post('/register', async (ctx) => {
@@ -89,7 +55,6 @@ router.post('/login', async (ctx) => {
 	const { name } = ctx.request.body
 	const { password } = ctx.request.body
 	/* eslint no-underscore-dangle: 0 */
-
 	const user = await login(name)
 	const upassword = md5(name + user.salt + password)
 	if (upassword === user.password) {
@@ -101,9 +66,9 @@ router.post('/login', async (ctx) => {
 })
 
 router.post('/start', async (ctx) => {
-	const R = Math.floor(100 * Math.random())
 	const { userid } = ctx.session
 	if (userid) {
+		const R = Math.floor(100 * Math.random())
 		await start(userid, R)
 		ctx.body = 'success start'
 	} else {
@@ -113,10 +78,9 @@ router.post('/start', async (ctx) => {
 
 router.post('/number', async (ctx) => {
 	const { userid } = ctx.session
-
 	if (userid) {
-		const number = await guess(userid)
-		const num = number.number
+		const Num = await number(userid)
+		const num = Num.number
 		const Rnum = Number(ctx.request.body.num)
 		if (num > Rnum) {
 			ctx.body = 'small'
@@ -130,32 +94,23 @@ router.post('/number', async (ctx) => {
 	}
 })
 
-function closeconn() {
-	client.close()
-}
+router.post('/closedb', async (ctx) => {
+	dbconnect.closeconn()
+	ctx.body = 'close db connection'
+})
 
 function deleteuser(userid) {
-	return new Promise((resolve, reject) => {
-		db.collection('user').deleteOne({ _id: mongoose.Types.ObjectId(userid) }, (err, result) => {
-			if (err) {
-				reject(err)
-			}
-			resolve(result)
-		})
-		db.collection('number').deleteOne({ userid }, (err, result) => {
-			if (err) {
-				reject(err)
-			}
-			resolve(result)
-		})
-		closeconn()
-	})
+	return db.collection('user').deleteOne({ _id: mongoose.Types.ObjectId(userid) })
+}
+
+function deletenumber(userid) {
+	return db.collection('number').deleteOne({ userid })
 }
 
 router.post('/delete', async (ctx) => {
 	const { userid } = ctx.session
-
 	await deleteuser(userid)
+	await deletenumber(userid)
 	ctx.body = 'delete sucess'
 })
 

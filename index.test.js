@@ -2,7 +2,8 @@ const request = require('supertest')
 const should = require('should')
 const app = require('./index')
 
-const agent = request.agent(app)
+const agent1 = request.agent(app)
+const agent2 = request.agent(app)
 describe('test', () => {
 	it('register', (done) => {
 		request(app)
@@ -14,8 +15,8 @@ describe('test', () => {
 				done()
 			})
 	})
-	it('login sucess', (done) => {
-		agent
+	it('login', (done) => {
+		request(app)
 			.post('/login')
 			.send({ name: 'new', password: 'test' })
 			.expect(200, (err, res) => {
@@ -24,27 +25,41 @@ describe('test', () => {
 				done()
 			})
 	})
-	it('start success', (done) => {
-		agent
-			.post('/start')
-			.expect(200, (err, response) => {
+	it('start', (done) => {
+		agent1
+			.post('/login')
+			.send({ name: 'new', password: 'test' })
+			.expect(200, (err, res) => {
 				should.not.exist(err)
-				response.text.should.containEql('success start')
+				res.text.should.containEql('Hello')
+				agent1
+					.post('/start')
+					.expect(200, (error, response) => {
+						should.not.exist(error)
+						response.text.should.containEql('success start')
+					})
 				done()
 			})
 	})
-	it('guess success', (done) => {
-		agent
-			.post('/number')
-			.send({ num: 50 })
+	it('number', (done) => {
+		agent2
+			.post('/login')
+			.send({ name: 'new', password: 'test' })
 			.expect(200, (err, res) => {
 				should.not.exist(err)
-				res.text.should.equalOneOf(['big', 'small', 'equal'])
+				res.text.should.containEql('Hello')
+				agent2
+					.post('/number')
+					.send({ num: 50 })
+					.expect(200, (error, response) => {
+						should.not.exist(error)
+						response.text.should.equalOneOf(['big', 'small', 'equal'])
+					})
 				done()
 			})
 	})
 	it('delete all', (done) => {
-		agent
+		agent1
 			.post('/delete')
 			.expect(200, (err, res) => {
 				should.not.exist(err)
