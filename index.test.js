@@ -2,9 +2,10 @@ const request = require('supertest')
 const should = require('should')
 const app = require('./index')
 
+const agent = request.agent(app)
 const agent1 = request.agent(app)
-const agent2 = request.agent(app)
-describe('test', () => {
+
+describe('register test', () => {
 	it('register', (done) => {
 		request(app)
 			.post('/register')
@@ -15,6 +16,9 @@ describe('test', () => {
 				done()
 			})
 	})
+})
+
+describe('login test', () => {
 	it('login', (done) => {
 		request(app)
 			.post('/login')
@@ -25,36 +29,47 @@ describe('test', () => {
 				done()
 			})
 	})
+})
+
+describe('start test', () => {
+	it('start login', (done) => {
+		agent
+			.post('/login')
+			.send({ name: 'new', password: 'test' })
+			.expect(200, (err, res) => {
+				should.not.exist(err)
+				res.text.should.containEql('Hello')
+				done()
+			})
+	})
 	it('start', (done) => {
+		agent
+			.post('/start')
+			.expect(200, (err, response) => {
+				should.not.exist(err)
+				response.text.should.containEql('success start')
+				done()
+			})
+	})
+})
+
+describe('number test', () => {
+	it('number login', (done) => {
 		agent1
 			.post('/login')
 			.send({ name: 'new', password: 'test' })
 			.expect(200, (err, res) => {
 				should.not.exist(err)
 				res.text.should.containEql('Hello')
-				agent1
-					.post('/start')
-					.expect(200, (error, response) => {
-						should.not.exist(error)
-						response.text.should.containEql('success start')
-					})
 				done()
 			})
 	})
 	it('number', (done) => {
-		agent2
-			.post('/login')
-			.send({ name: 'new', password: 'test' })
-			.expect(200, (err, res) => {
+		agent1
+			.post('/start')
+			.expect(200, (err, response) => {
 				should.not.exist(err)
-				res.text.should.containEql('Hello')
-				agent2
-					.post('/number')
-					.send({ num: 50 })
-					.expect(200, (error, response) => {
-						should.not.exist(error)
-						response.text.should.equalOneOf(['big', 'small', 'equal'])
-					})
+				response.text.should.containEql('success start')
 				done()
 			})
 	})
