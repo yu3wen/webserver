@@ -12,7 +12,6 @@ const identify = require('./identify')
 const app = new Koa()
 app.use(session(app))
 app.use(bodyParser())
-app.use(Catcherr)// catch errors
 module.exports = app.listen(3000)
 const router = new Router()
 app.keys = ['somesecret']
@@ -44,13 +43,13 @@ function number(userId) {
 	return db.collection('number').findOne({ userid: userId })
 }
 
-router.post('/register', async (ctx) => {
+router.post('/register', Catcherr, async (ctx) => {
 	const { name, password } = ctx.request.body
 	await register(name, password)
 	ctx.body = 'register sucess'
 })
 
-router.post('/login', async (ctx) => {
+router.post('/login', Catcherr, async (ctx) => {
 	const { name, password } = ctx.request.body
 	/* eslint no-underscore-dangle: 0 */
 	const user = await login(name)
@@ -63,16 +62,14 @@ router.post('/login', async (ctx) => {
 	}
 })
 
-router.post('/start', async (ctx) => {
-	identify(ctx)
+router.post('/start', Catcherr, identify, async (ctx) => {
 	const { userid } = ctx.session
 	const R = Math.floor(100 * Math.random())
 	await start(userid, R)
 	ctx.body = 'success start'
 })
 
-router.post('/number', async (ctx) => {
-	identify(ctx)
+router.post('/number', Catcherr, identify, async (ctx) => {
 	const { userid } = ctx.session
 	const Num = await number(userid)
 	const num = Num.number
@@ -99,7 +96,7 @@ function deleteNumber(userid) {
 	return db.collection('number').deleteOne({ userid })
 }
 
-router.post('/delete', async (ctx) => {
+router.post('/delete', Catcherr, async (ctx) => {
 	const { userid } = ctx.session
 	await Promise.all([deleteUser(userid), deleteNumber(userid)])
 	ctx.body = 'delete sucess'
