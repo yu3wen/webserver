@@ -2,9 +2,6 @@ const request = require('supertest')
 const should = require('should')
 const app = require('./index')
 
-const agent = request.agent(app)
-const agent1 = request.agent(app)
-
 describe('register test', () => {
 	it('register', (done) => {
 		request(app)
@@ -32,6 +29,7 @@ describe('login test', () => {
 })
 
 describe('start test', () => {
+	const agent = request.agent(app)
 	it('start login', (done) => {
 		agent
 			.post('/login')
@@ -54,6 +52,7 @@ describe('start test', () => {
 })
 
 describe('number test', () => {
+	const agent1 = request.agent(app)
 	it('number login', (done) => {
 		agent1
 			.post('/login')

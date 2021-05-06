@@ -7,11 +7,13 @@ const mongoose = require('mongoose')
 
 const Catcherr = require('./exception')
 const dbconnect = require('./mongodbconnect')
+const identify = require('./identify')
 
 const app = new Koa()
-app.use(Catcherr)
 app.use(session(app))
 app.use(bodyParser())
+app.use(Catcherr)// catch errors
+app.use(identify)// user identify
 module.exports = app.listen(3000)
 const router = new Router()
 app.keys = ['somesecret']
@@ -44,16 +46,13 @@ function number(userid) {
 }
 
 router.post('/register', async (ctx) => {
-	const uname = ctx.request.body.name
-	const upassword = ctx.request.body.password
-	await register(uname, upassword)
-
+	const { name, password } = ctx.request.body
+	await register(name, password)
 	ctx.body = 'register sucess'
 })
 
 router.post('/login', async (ctx) => {
-	const { name } = ctx.request.body
-	const { password } = ctx.request.body
+	const { name, password } = ctx.request.body
 	/* eslint no-underscore-dangle: 0 */
 	const user = await login(name)
 	const upassword = md5(name + user.salt + password)
@@ -67,30 +66,22 @@ router.post('/login', async (ctx) => {
 
 router.post('/start', async (ctx) => {
 	const { userid } = ctx.session
-	if (userid) {
-		const R = Math.floor(100 * Math.random())
-		await start(userid, R)
-		ctx.body = 'success start'
-	} else {
-		ctx.body = 'please login'
-	}
+	const R = Math.floor(100 * Math.random())
+	await start(userid, R)
+	ctx.body = 'success start'
 })
 
 router.post('/number', async (ctx) => {
 	const { userid } = ctx.session
-	if (userid) {
-		const Num = await number(userid)
-		const num = Num.number
-		const Rnum = Number(ctx.request.body.num)
-		if (num > Rnum) {
-			ctx.body = 'small'
-		} else if (num < Rnum) {
-			ctx.body = 'big'
-		} else if (num === Rnum) {
-			ctx.body = 'equal'
-		}
-	} else {
-		ctx.body = 'please login'
+	const Num = await number(userid)
+	const num = Num.number
+	const Rnum = Number(ctx.request.body.num)
+	if (num > Rnum) {
+		ctx.body = 'small'
+	} else if (num < Rnum) {
+		ctx.body = 'big'
+	} else if (num === Rnum) {
+		ctx.body = 'equal'
 	}
 })
 
@@ -99,18 +90,17 @@ router.post('/closedb', async (ctx) => {
 	ctx.body = 'close db connection'
 })
 
-function deleteuser(userid) {
+function deleteUser(userid) {
 	return db.collection('user').deleteOne({ _id: mongoose.Types.ObjectId(userid) })
 }
 
-function deletenumber(userid) {
+function deleteNumber(userid) {
 	return db.collection('number').deleteOne({ userid })
 }
 
 router.post('/delete', async (ctx) => {
 	const { userid } = ctx.session
-	await deleteuser(userid)
-	await deletenumber(userid)
+	await Promise.all(deleteUser(userid), deleteNumber(userid))
 	ctx.body = 'delete sucess'
 })
 
