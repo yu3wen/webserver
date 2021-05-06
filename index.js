@@ -13,7 +13,6 @@ const app = new Koa()
 app.use(session(app))
 app.use(bodyParser())
 app.use(Catcherr)// catch errors
-app.use(identify)// user identify
 module.exports = app.listen(3000)
 const router = new Router()
 app.keys = ['somesecret']
@@ -33,16 +32,16 @@ function register(uName, uPassword) {
 	return db.collection('user').insertOne(test)
 }
 
-function login(uname) {
-	return db.collection('user').findOne({ name: uname })
+function login(uName) {
+	return db.collection('user').findOne({ name: uName })
 }
 
-function start(userid, num) {
-	return db.collection('number').updateOne({ userid }, { $set: { number: num } }, { upsert: true })
+function start(userId, num) {
+	return db.collection('number').updateOne({ userid: userId }, { $set: { number: num } }, { upsert: true })
 }
 
-function number(userid) {
-	return db.collection('number').findOne({ userid })
+function number(userId) {
+	return db.collection('number').findOne({ userid: userId })
 }
 
 router.post('/register', async (ctx) => {
@@ -65,6 +64,7 @@ router.post('/login', async (ctx) => {
 })
 
 router.post('/start', async (ctx) => {
+	identify(ctx)
 	const { userid } = ctx.session
 	const R = Math.floor(100 * Math.random())
 	await start(userid, R)
@@ -72,6 +72,7 @@ router.post('/start', async (ctx) => {
 })
 
 router.post('/number', async (ctx) => {
+	identify(ctx)
 	const { userid } = ctx.session
 	const Num = await number(userid)
 	const num = Num.number
