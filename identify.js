@@ -1,7 +1,7 @@
 const identify = async function (ctx, next) {
-	const allowpage = ['/login', '/register']
+	const allowPage = ['/login', '/register']
 	const url = ctx.originalUrl
-	if (allowpage.indexOf(url) === -1) {
+	if (allowPage.indexOf(url) === -1) {
 		const { userid } = ctx.session
 		if (!userid) {
 			ctx.body = 'please login'

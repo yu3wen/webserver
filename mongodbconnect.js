@@ -12,8 +12,8 @@ function connect(cb) {
 		cb(client.db(dbname))
 	})
 }
-function closeconn() {
+function closeConn() {
 	client.close()
 }
 
-module.exports = { connect, closeconn }
+module.exports = { connect, closeConn }

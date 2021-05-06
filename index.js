@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const mongoose = require('mongoose')
 
 const Catcherr = require('./exception')
-const dbconnect = require('./mongodbconnect')
+const dbConnect = require('./mongodbconnect')
 const identify = require('./identify')
 
 const app = new Koa()
@@ -19,7 +19,7 @@ const router = new Router()
 app.keys = ['somesecret']
 
 let db
-dbconnect.connect((res) => {
+dbConnect.connect((res) => {
 	db = res
 })
 
@@ -27,9 +27,9 @@ function md5(s) {
 	return crypto.createHash('md5').update(String(s)).digest('hex')
 }
 
-function register(uname, upassword) {
+function register(uName, uPassword) {
 	const usalt = Math.floor(100 * Math.random())
-	const test = { name: uname, password: md5(uname + usalt + upassword), salt: usalt }
+	const test = { name: uName, password: md5(uName + usalt + uPassword), salt: usalt }
 	return db.collection('user').insertOne(test)
 }
 
@@ -86,7 +86,7 @@ router.post('/number', async (ctx) => {
 })
 
 router.post('/closedb', async (ctx) => {
-	dbconnect.closeconn()
+	dbConnect.closeConn()
 	ctx.body = 'close db connection'
 })
 
@@ -100,7 +100,7 @@ function deleteNumber(userid) {
 
 router.post('/delete', async (ctx) => {
 	const { userid } = ctx.session
-	await Promise.all(deleteUser(userid), deleteNumber(userid))
+	await Promise.all([deleteUser(userid), deleteNumber(userid)])
 	ctx.body = 'delete sucess'
 })
 
